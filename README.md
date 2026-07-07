@@ -5,13 +5,28 @@ Ein vollständiges Mensa-Bestellsystem für das Studierendenwerk Dortmund, beste
 ## Architektur
 
 ```
-[Frontend] --REST/JWT--> [mensa_app_backend:8082] --MQTT--> [studentenwerk_simulator:8081]
-   Speiseplan, Bestellungen,        eigene DB: mensa_db          eigene DB: simulator_db
-   Voting, Profil                   (users, orders, votes)       (gerichte, mensen,
-                                       ↑ MQTT (speiseplan/mensen)        received_orders, vote_totals)
-                                       └────────────────────────┘
-                                     Mosquitto MQTT Broker (1883)
+┌──────────────┐                ┌──────────────────────┐                ┌─────────────────────────┐
+│              │    REST/JWT    │  mensa_app_backend   │     MQTT       │  studentenwerk_simulator │
+│   Frontend   │ ─────────────> │       :8082          │ ────────────> │          :8081           │
+│  (React-Vite)│ <───────────── │                      │ <──────────── │                         │
+│    :5173     │                │  DB: mensa_db        │  speiseplan   │  DB: simulator_db       │
+│              │                │  users, orders,      │  mensen       │  gerichte, mensen,      │
+│  Speiseplan  │                │  votes, preferences  │  orders/votes │  received_orders,       │
+│  Bestellen   │                │                      │               │  vote_totals            │
+│  Voting      │                └──────────┬───────────┘               └────────────┬────────────┘
+│  Profil      │                           │                                        │
+└──────────────┘                           │                                        │
+                                           └────────────┐             ┌───────────────────┘
+                                                        ▼             ▼
+                                              ┌──────────────────────┐
+                                              │  Mosquitto MQTT      │
+                                              │  Broker :1883        │
+                                              └──────────────────────┘
 ```
+
+**Datenfluss:**
+- **Frontend ↔ mensa_app_backend:** REST mit JWT-Auth (Speiseplan, Bestellungen, Votes, Profil)
+- **mensa_app_backend ↔ studentenwerk_simulator:** MQTT über Mosquitto (Retain-Topics für Speiseplan/Mensen, Fire-and-Forget für Orders/Votes)
 
 ## Module
 
