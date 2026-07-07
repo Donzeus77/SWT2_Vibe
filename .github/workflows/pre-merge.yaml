@@ -9,9 +9,48 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    services:
+      postgres-simulator:
+        image: postgres:16
+        env:
+          POSTGRES_DB: simulator_db
+          POSTGRES_USER: mensa
+          POSTGRES_PASSWORD: mensa123
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U mensa -d simulator_db"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      postgres-app:
+        image: postgres:16
+        env:
+          POSTGRES_DB: mensa_db
+          POSTGRES_USER: mensa
+          POSTGRES_PASSWORD: mensa123
+        ports:
+          - 5434:5432
+        options: >-
+          --health-cmd "pg_isready -U mensa -d mensa_db"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Start Mosquitto
+        run: |
+          docker run -d --name mosquitto -p 1883:1883 \
+            -v "$PWD/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf" \
+            eclipse-mosquitto:2
+          for i in $(seq 1 20); do
+            if docker exec mosquitto mosquitto_sub -t '$SYS/broker/version' -C 1 -W 2 > /dev/null 2>&1; then
+              echo "Mosquitto is ready"
+              break
+            fi
+            sleep 1
+          done
       - name: Set up JDK
         uses: actions/setup-java@v4.5.0
         with:
