@@ -7,8 +7,9 @@ import com.example.studentenwerk_simulator.gericht.GerichtTag;
 
 import java.util.Set;
 
-// Konkrete Factory für Beilagen
-// Rolle im Factory Method Pattern: ConcreteCreator
+import org.springframework.stereotype.Component;
+
+@Component
 public class BeilageFactory implements GerichtFactory {
 
     @Override

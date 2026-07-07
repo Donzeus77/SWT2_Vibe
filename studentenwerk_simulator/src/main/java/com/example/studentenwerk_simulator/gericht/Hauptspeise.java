@@ -1,12 +1,15 @@
 package com.example.studentenwerk_simulator.gericht;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import java.util.Set;
 
-// Hauptspeise als konkrete Unterklasse von Gericht
-// Rolle im Pattern: ConcreteProduct
+@Entity
+@Table(name = "hauptspeise")
 public class Hauptspeise extends Gericht {
 
-    // Konstruktor leitet alles an die abstrakte Klasse weiter
+    protected Hauptspeise() {}
+
     public Hauptspeise(String name, String beschreibung,
             double preisStudent, double preisGast,
             Set<Allergen> allergene, Set<GerichtTag> tags) {

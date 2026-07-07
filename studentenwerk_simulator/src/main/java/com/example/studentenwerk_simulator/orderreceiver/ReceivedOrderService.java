@@ -2,28 +2,35 @@ package com.example.studentenwerk_simulator.orderreceiver;
 
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class ReceivedOrderService {
 
-    private final List<ReceivedOrder> orders = new ArrayList<>();
-    private final AtomicLong nextId = new AtomicLong(1);
+    private final ReceivedOrderRepository repository;
+
+    public ReceivedOrderService(ReceivedOrderRepository repository) {
+        this.repository = repository;
+    }
 
     public List<ReceivedOrder> getAllOrders() {
-        return List.copyOf(orders);
+        return repository.findAll();
     }
 
     public ReceivedOrder receiveOrder(ReceivedOrderRequest request) {
         ReceivedOrder order = new ReceivedOrder(
-                nextId.getAndIncrement(),
-                request.menuItemId(),
                 request.studentName(),
-                "EINGEGANGEN"
+                request.total(),
+                request.pickupTime(),
+                request.code()
         );
-        orders.add(order);
-        return order;
+        if (request.items() != null) {
+            for (ReceivedOrderItemRequest item : request.items()) {
+                order.addItem(new ReceivedOrderItem(
+                        item.gerichtId(), item.name(), item.anzahl(), item.preis()
+                ));
+            }
+        }
+        return repository.save(order);
     }
 }
