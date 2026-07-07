@@ -11,6 +11,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,6 +49,7 @@ public class MqttPublisher {
         publishMensen();
     }
 
+    @Transactional(readOnly = true)
     public void publishSpeiseplan() {
         try {
             List<Map<String, Object>> gerichte = new ArrayList<>();
@@ -57,10 +59,13 @@ public class MqttPublisher {
             for (Gericht g : beilageRepository.findAll()) {
                 gerichte.add(gerichtToMap(g));
             }
+            System.out.println("=== Publiziere Speiseplan mit " + gerichte.size() + " Gerichten an MQTT ===");
             String json = objectMapper.writeValueAsString(gerichte);
             speiseplanOutboundChannel.send(MessageBuilder.withPayload(json).build());
+            System.out.println("=== Speiseplan erfolgreich publiziert ===");
         } catch (Exception e) {
             System.err.println("Fehler beim Publizieren des Speiseplans: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
