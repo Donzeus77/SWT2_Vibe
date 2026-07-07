@@ -1,12 +1,15 @@
 package com.example.studentenwerk_simulator.gericht;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import java.util.Set;
 
-// Beilage als Unterklasse von Gericht
-// Rolle im Pattern: ConcreteProduct
+@Entity
+@Table(name = "beilage")
 public class Beilage extends Gericht {
 
-    // Konstruktor leitet alles an die abstrakte Klasse weiter
+    protected Beilage() {}
+
     public Beilage(String name, String beschreibung,
             double preisStudent, double preisGast,
             Set<Allergen> allergene, Set<GerichtTag> tags) {

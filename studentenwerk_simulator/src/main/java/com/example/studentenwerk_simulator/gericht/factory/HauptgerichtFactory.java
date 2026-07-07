@@ -7,8 +7,9 @@ import com.example.studentenwerk_simulator.gericht.Hauptspeise;
 
 import java.util.Set;
 
-// Konkrete Factory für Hauptspeisen
-// Rolle im Factory Method Pattern: ConcreteCreator
+import org.springframework.stereotype.Component;
+
+@Component
 public class HauptgerichtFactory implements GerichtFactory {
 
     @Override

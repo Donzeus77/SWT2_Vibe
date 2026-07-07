@@ -1,27 +1,45 @@
 package com.example.studentenwerk_simulator.gericht;
 
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
-// Abstrakte Basisklasse für alle Gerichte in der Mensa
-// Rolle im Factory Method Pattern: Product
+@MappedSuperclass
 public abstract class Gericht {
 
-    private final String name;
-    private final String beschreibung;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    // Preisfelder für Studenten und externe Gäste
-    private final double preisStudent;
-    private final double preisGast;
+    private String name;
+    private String beschreibung;
 
-    // Allergene
-    private final Set<Allergen> allergene;
+    private double preisStudent;
+    private double preisGast;
 
-    // Tags (vegan etc.)
-    private final Set<GerichtTag> tags;
+    @ElementCollection
+    @CollectionTable(name = "gericht_allergene")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "allergen")
+    private Set<Allergen> allergene;
 
-    // Konstruktor
+    @ElementCollection
+    @CollectionTable(name = "gericht_tags")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tag")
+    private Set<GerichtTag> tags;
+
+    protected Gericht() {}
+
     protected Gericht(String name, String beschreibung,
             double preisStudent, double preisGast,
             Set<Allergen> allergene, Set<GerichtTag> tags) {
@@ -35,6 +53,10 @@ public abstract class Gericht {
         this.tags = tags.isEmpty()
                 ? Collections.emptySet()
                 : Collections.unmodifiableSet(EnumSet.copyOf(tags));
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getName() {
@@ -53,17 +75,14 @@ public abstract class Gericht {
         return preisGast;
     }
 
-    // Gibt alle Allergene zurück
     public Set<Allergen> getAllergene() {
         return allergene;
     }
 
-    // Gibt alle Tags zurück
     public Set<GerichtTag> getTags() {
         return tags;
     }
 
-    // wird von Hauptspeise und Beilage implementiert
     public abstract String getTyp();
 
     @Override
