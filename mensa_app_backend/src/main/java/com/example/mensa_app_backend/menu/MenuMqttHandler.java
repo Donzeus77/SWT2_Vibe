@@ -39,11 +39,14 @@ public class MenuMqttHandler {
         public void handleSpeiseplan(Message<?> message) {
             try {
                 String payload = message.getPayload().toString();
+                System.out.println("=== MQTT Speiseplan empfangen, Laenge: " + payload.length() + " ===");
                 List<Map<String, Object>> gerichte = objectMapper.readValue(
                         payload, new TypeReference<List<Map<String, Object>>>() {});
+                System.out.println("=== " + gerichte.size() + " Gerichte in Cache gespeichert ===");
                 cache.update(gerichte);
             } catch (Exception e) {
                 System.err.println("Fehler beim Empfangen des Speiseplans via MQTT: " + e.getMessage());
+                e.printStackTrace();
             }
         }
     }
@@ -62,11 +65,14 @@ public class MenuMqttHandler {
         public void handleMensen(Message<?> message) {
             try {
                 String payload = message.getPayload().toString();
+                System.out.println("=== MQTT Mensen empfangen, Laenge: " + payload.length() + " ===");
                 List<Map<String, Object>> mensen = objectMapper.readValue(
                         payload, new TypeReference<List<Map<String, Object>>>() {});
+                System.out.println("=== " + mensen.size() + " Mensen in Cache gespeichert ===");
                 cache.update(mensen);
             } catch (Exception e) {
                 System.err.println("Fehler beim Empfangen der Mensen via MQTT: " + e.getMessage());
+                e.printStackTrace();
             }
         }
     }

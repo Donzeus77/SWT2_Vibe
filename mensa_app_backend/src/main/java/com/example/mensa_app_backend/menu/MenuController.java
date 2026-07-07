@@ -21,7 +21,17 @@ public class MenuController {
 
     @GetMapping
     public List<Map<String, Object>> getAllMenuItems() {
-        return menuService.getAllItems();
+        List<Map<String, Object>> items = menuService.getAllItems();
+        System.out.println("=== /api/menu aufgerufen, Cache hat " + items.size() + " Gerichte ===");
+        return items;
+    }
+
+    @GetMapping("/debug")
+    public Map<String, Object> debug() {
+        return Map.of(
+                "cacheSize", menuService.getAllItems().size(),
+                "cacheItems", menuService.getAllItems()
+        );
     }
 
     @GetMapping("/{id}")
