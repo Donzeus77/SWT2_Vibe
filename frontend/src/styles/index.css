@@ -1,0 +1,23 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme {
+  --color-stwdo-primary: #003a70;
+  --color-stwdo-primary-dark: #002a52;
+  --color-stwdo-primary-light: #0052a3;
+  --color-stwdo-secondary: #1976d2;
+  --color-stwdo-accent: #0277bd;
+  --radius: 0.625rem;
+}
+
+@layer base {
+  body {
+    font-family: "Inter", system-ui, sans-serif;
+    font-weight: 300;
+    background-color: #f3f4f6;
+  }
+  h1, h2, h3, h4, h5, h6, button {
+    font-family: "Variable Bold", "Variable", system-ui, sans-serif;
+    font-weight: 700;
+  }
+}
