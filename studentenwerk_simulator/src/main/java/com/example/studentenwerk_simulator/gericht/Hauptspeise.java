@@ -1,11 +1,11 @@
 package com.example.studentenwerk_simulator.gericht;
 
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 import java.util.Set;
 
 @Entity
-@Table(name = "hauptspeise")
+@DiscriminatorValue("HAUPTSPEISE")
 public class Hauptspeise extends Gericht {
 
     protected Hauptspeise() {}
