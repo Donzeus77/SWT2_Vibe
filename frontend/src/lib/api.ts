@@ -18,7 +18,9 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     const err = await res.json().catch(() => ({ error: "Serverfehler" }));
     throw new Error(err.error || "Serverfehler");
   }
-  return res.json() as Promise<T>;
+  const text = await res.text();
+  if (!text) return undefined as T;
+  return JSON.parse(text) as T;
 }
 
 export interface MenuItem {

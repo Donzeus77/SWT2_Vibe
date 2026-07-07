@@ -3,6 +3,7 @@ package com.example.mensa_app_backend.order;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
@@ -25,10 +26,12 @@ public class OrderService {
         this.objectMapper = objectMapper;
     }
 
+    @Transactional(readOnly = true)
     public List<Order> getOrdersByUser(Long userId) {
         return repository.findByUserId(userId);
     }
 
+    @Transactional
     public Order createOrder(Long userId, String studentName, OrderRequest request) {
         Order order = new Order(userId, studentName, 0, request.pickupTime(), generateCode());
         double total = 0;
@@ -42,6 +45,7 @@ public class OrderService {
         return order;
     }
 
+    @Transactional
     public Order updateStatus(Long orderId, String status) {
         Order order = repository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Bestellung nicht gefunden"));
