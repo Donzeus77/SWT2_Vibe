@@ -30,5 +30,16 @@ public class Warenkorb_Item {
         return anzahl * gericht.getPreis();
     }
 
-    // TODO: equals überschreiben
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Warenkorb_Item that = (Warenkorb_Item) o;
+        return gericht != null && gericht.equals(that.gericht);
+    }
+
+    @Override
+    public int hashCode() {
+        return gericht != null ? gericht.hashCode() : 0;
+    }
 }

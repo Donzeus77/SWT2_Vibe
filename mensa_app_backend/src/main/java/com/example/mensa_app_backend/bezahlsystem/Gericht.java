@@ -11,4 +11,17 @@ public class Gericht {
     public double getPreis() {
         return preis;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Gericht gericht = (Gericht) o;
+        return Double.compare(preis, gericht.preis) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Double.hashCode(preis);
+    }
 }
