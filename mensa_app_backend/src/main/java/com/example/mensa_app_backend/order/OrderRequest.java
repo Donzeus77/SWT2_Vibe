@@ -1,3 +1,8 @@
 package com.example.mensa_app_backend.order;
 
-public record OrderRequest(Long menuItemId, String studentName) {}
+import java.util.List;
+
+public record OrderRequest(
+        List<OrderItemRequest> items,
+        String pickupTime
+) {}
