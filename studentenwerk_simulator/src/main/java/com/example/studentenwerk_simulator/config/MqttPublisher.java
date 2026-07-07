@@ -11,7 +11,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,7 +48,6 @@ public class MqttPublisher {
         publishMensen();
     }
 
-    @Transactional(readOnly = true)
     public void publishSpeiseplan() {
         try {
             List<Map<String, Object>> gerichte = new ArrayList<>();

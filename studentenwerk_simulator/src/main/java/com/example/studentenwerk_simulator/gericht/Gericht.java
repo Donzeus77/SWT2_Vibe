@@ -7,6 +7,7 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -33,13 +34,13 @@ public abstract class Gericht {
     private double preisStudent;
     private double preisGast;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "gericht_allergene")
     @Enumerated(EnumType.STRING)
     @Column(name = "allergen")
     private Set<Allergen> allergene;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "gericht_tags")
     @Enumerated(EnumType.STRING)
     @Column(name = "tag")
