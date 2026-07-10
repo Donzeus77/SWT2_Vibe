@@ -16,8 +16,6 @@ export default function Profil() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
-  const [vorname, setVorname] = useState("");
-  const [nachname, setNachname] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [prefs, setPrefs] = useState<{ dietary: string[]; allergens: string[] }>({ dietary: [], allergens: [] });
@@ -43,7 +41,7 @@ export default function Profil() {
   const handleRegister = async () => {
     setError(null); setLoading(true);
     try {
-      const res = await api.auth.register(email, password, vorname, nachname);
+      const res = await api.auth.register(email, password);
       login(res);
     } catch { setError("Registrierung fehlgeschlagen (E-Mail schon vorhanden?)"); }
     setLoading(false);
@@ -144,17 +142,14 @@ export default function Profil() {
           <div className="space-y-4">
             <h2 className="font-bold text-lg">Registrieren</h2>
             {error && <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg">{error}</div>}
-            <div className="grid grid-cols-2 gap-2">
-              <div><Label>Vorname</Label><Input value={vorname} onChange={e => setVorname(e.target.value)} /></div>
-              <div><Label>Nachname</Label><Input value={nachname} onChange={e => setNachname(e.target.value)} /></div>
-            </div>
             <div>
-              <Label>Hochschule-E-Mail</Label>
+              <Label>E-Mail (vorname.nachname@…)</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
                 <Input className="pl-10" placeholder="vorname.nachname000@stud.fh-dortmund.de" value={email} onChange={e => setEmail(e.target.value)} />
               </div>
             </div>
+            <p className="text-xs text-gray-500">Vor- und Nachname werden aus der E-Mail-Adresse übernommen.</p>
             <div>
               <Label>Passwort</Label>
               <div className="relative">

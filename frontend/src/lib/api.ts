@@ -59,10 +59,10 @@ export const api = {
         method: "POST",
         body: JSON.stringify({ email, password }),
       }),
-    register: (email: string, password: string, vorname: string, nachname: string) =>
+    register: (email: string, password: string) =>
       request<AuthUser>("/auth/register", {
         method: "POST",
-        body: JSON.stringify({ email, password, vorname, nachname }),
+        body: JSON.stringify({ email, password }),
       }),
   },
   menu: {

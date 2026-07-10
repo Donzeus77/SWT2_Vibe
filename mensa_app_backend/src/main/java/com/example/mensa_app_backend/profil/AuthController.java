@@ -12,14 +12,14 @@ public class AuthController {
     private final ProfilRepository repository;
     public AuthController(ProfilRepository repository) { this.repository = repository; }
     public record LoginRequest(String email, String password) {}
-    public record RegisterRequest(String email, String password, String vorname, String nachname) {}
+    public record RegisterRequest(String email, String password) {}
     public record ProfilResponse(Long id, String email, String vorname, String nachname, String type) {
         static ProfilResponse from(Profil p) { return new ProfilResponse(p.getId(), p.getEmail(), p.getVorname(), p.getNachname(), p.getStatus()); }
     }
     @PostMapping("/register")
     public ResponseEntity<ProfilResponse> register(@RequestBody RegisterRequest request) {
         if (request.email() == null || request.password() == null || repository.findByEmail(request.email()).isPresent()) return ResponseEntity.badRequest().build();
-        Profil profil = "gast".equals(Profil.ermittleStatus(request.email())) ? new Profil(request.email(), request.password(), request.vorname(), request.nachname()) : new Profil(request.email(), request.password());
+        Profil profil = new Profil(request.email(), request.password());
         if ("ungueltig".equals(profil.getStatus())) return ResponseEntity.badRequest().build();
         return ResponseEntity.ok(ProfilResponse.from(repository.save(profil)));
     }

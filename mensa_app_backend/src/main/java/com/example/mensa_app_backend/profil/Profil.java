@@ -62,7 +62,7 @@ public class Profil {
 
     private void extrahiereName(String email) {
         String[] name = email.split("@")[0].split("\\.");
-        if (name.length < 2) { this.vorname = "Gast"; this.nachname = ""; return; }
+        if (name.length < 2) { this.vorname = grossschreiben(name[0]); this.nachname = ""; return; }
         this.vorname = grossschreiben(name[0]);
         String nachnameAusMail = name[1];
         if ("student".equals(status) && nachnameAusMail.length() >= 3) nachnameAusMail = nachnameAusMail.substring(0, nachnameAusMail.length() - 3);
