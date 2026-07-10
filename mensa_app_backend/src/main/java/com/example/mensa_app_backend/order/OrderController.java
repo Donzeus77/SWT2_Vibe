@@ -19,23 +19,25 @@ public class OrderController {
     public record StatusUpdate(String status) {}
 
     @GetMapping
-    public ResponseEntity<List<Order>> getOrders(Authentication auth) {
+    public ResponseEntity<List<OrderResponse>> getOrders(Authentication auth) {
         Long userId = (Long) auth.getPrincipal();
-        return ResponseEntity.ok(orderService.getOrdersByUser(userId));
+        return ResponseEntity.ok(orderService.getOrdersByUser(userId).stream()
+                .map(OrderResponse::from)
+                .toList());
     }
 
     @PostMapping
-    public ResponseEntity<Order> createOrder(Authentication auth, @RequestBody OrderRequest request) {
+    public ResponseEntity<OrderResponse> createOrder(Authentication auth, @RequestBody OrderRequest request) {
         Long userId = (Long) auth.getPrincipal();
         // studentName is derived from the user; for now use a placeholder
         Order order = orderService.createOrder(userId, "User " + userId, request);
-        return ResponseEntity.ok(order);
+        return ResponseEntity.ok(OrderResponse.from(order));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Order> updateStatus(@PathVariable Long id, @RequestBody StatusUpdate update) {
+    public ResponseEntity<OrderResponse> updateStatus(@PathVariable Long id, @RequestBody StatusUpdate update) {
         try {
-            return ResponseEntity.ok(orderService.updateStatus(id, update.status()));
+            return ResponseEntity.ok(OrderResponse.from(orderService.updateStatus(id, update.status())));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
