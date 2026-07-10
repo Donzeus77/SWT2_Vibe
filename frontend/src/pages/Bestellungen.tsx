@@ -30,11 +30,23 @@ export default function Bestellungen() {
   const generatePickupSlots = () => {
     const slots: string[] = [];
     const now = new Date();
-    now.setMinutes(now.getMinutes() + 15);
-    now.setMinutes(Math.ceil(now.getMinutes() / 5) * 5);
+    const firstSlot = new Date(now);
+    firstSlot.setMinutes(firstSlot.getMinutes() + 15);
+    firstSlot.setMinutes(Math.ceil(firstSlot.getMinutes() / 5) * 5, 0, 0);
+    const opening = new Date(firstSlot);
+    opening.setHours(11, 30, 0, 0);
+    const closing = new Date(firstSlot);
+    closing.setHours(14, 15, 0, 0);
+
+    if (firstSlot > closing) {
+      firstSlot.setDate(firstSlot.getDate() + 1);
+      firstSlot.setHours(11, 30, 0, 0);
+    } else if (firstSlot < opening) {
+      firstSlot.setHours(11, 30, 0, 0);
+    }
+
     for (let i = 0; i < 8; i++) {
-      const slot = new Date(now.getTime() + i * 10 * 60000);
-      if (slot.getHours() >= 14 && slot.getMinutes() > 15) break;
+      const slot = new Date(firstSlot.getTime() + i * 10 * 60000);
       slots.push(`${String(slot.getHours()).padStart(2, "0")}:${String(slot.getMinutes()).padStart(2, "0")}`);
     }
     return slots;
