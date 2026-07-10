@@ -24,7 +24,7 @@ export default function Profil() {
 
   useEffect(() => {
     if (isLoggedIn) {
-      api.profil.preferences().then(setPrefs).catch(() => {});
+      api.profil.preferences(user!.email).then(setPrefs).catch(() => {});
     }
   }, [isLoggedIn]);
 
@@ -35,7 +35,7 @@ export default function Profil() {
     setError(null); setLoading(true);
     try {
       const res = await api.auth.login(email, password);
-      login(res.token, res.user);
+      login(res);
     } catch { setError("Falsche E-Mail oder Passwort"); }
     setLoading(false);
   };
@@ -44,7 +44,7 @@ export default function Profil() {
     setError(null); setLoading(true);
     try {
       const res = await api.auth.register(email, password, vorname, nachname);
-      login(res.token, res.user);
+      login(res);
     } catch { setError("Registrierung fehlgeschlagen (E-Mail schon vorhanden?)"); }
     setLoading(false);
   };
@@ -54,7 +54,7 @@ export default function Profil() {
     const newList = list.includes(value) ? list.filter(x => x !== value) : [...list, value];
     const newPrefs = { ...prefs, [type]: newList };
     setPrefs(newPrefs);
-    api.profil.updatePreferences(newPrefs).catch(() => {});
+    if (user) api.profil.updatePreferences(user.email, newPrefs).catch(() => {});
   };
 
   if (isLoggedIn && user) {

@@ -1,97 +1,39 @@
 package com.example.mensa_app_backend.profil;
 
-//import com.example.studentenwerk_simulator.gericht;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.LinkedList;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.MapKeyColumn;
+import jakarta.persistence.Table;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
+@Entity
+@Table(name = "abstimmungen")
 public class Abstimmung {
-    private ArrayList<Hauptspeise> gerichte;
-    private ArrayList<Integer> anzStimmen;
-    private LocalDateTime abstimmungsende;
-
-    public Abstimmung(LocalDateTime bis_wann) {
-        abstimmungsende = bis_wann;
-        gerichte = new ArrayList<>();
-        anzStimmen = new ArrayList<>();
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
+    @ElementCollection(fetch = FetchType.EAGER) @CollectionTable(name = "abstimmungs_stimmen") @MapKeyColumn(name = "gericht_id")
+    private Map<Long, Integer> stimmen = new HashMap<>();
+    @ElementCollection(fetch = FetchType.EAGER) @CollectionTable(name = "abstimmungs_nutzer")
+    private Set<String> abgegebeneStimmen = new HashSet<>();
+    protected Abstimmung() {}
+    public boolean abstimmen(String email, Long gerichtId) {
+        String schluessel = email.toLowerCase() + "#" + gerichtId;
+        if (!abgegebeneStimmen.add(schluessel)) return false;
+        stimmen.merge(gerichtId, 1, Integer::sum);
+        return true;
     }
-
-    public boolean istAktiv() {
-        return abstimmungsende.isAfter(LocalDateTime.now());
+    public Map<Long, Integer> getStimmen() { return stimmen; }
+    public Set<Long> getVotesVon(String email) {
+        String prefix = email.toLowerCase() + "#";
+        Set<Long> result = new HashSet<>();
+        for (String eintrag : abgegebeneStimmen) if (eintrag.startsWith(prefix)) result.add(Long.valueOf(eintrag.substring(prefix.length())));
+        return result;
     }
-
-    public int getIndexOf(Hauptspeise gericht) {
-        int index = -1;
-        for(int i=0; i < gerichte.size(); i++) {
-            if(gerichte.get(i).equals(gericht)) {
-                index = i;
-                break;
-            }
-        }
-        return index;
-    }
-
-    public boolean addGericht(Hauptspeise gericht) {
-        if(getIndexOf(gericht) == -1) { // Gerichte nicht doppelt eintragen
-            gerichte.add(gericht);
-            anzStimmen.add(0);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean removeGericht(Hauptspeise gericht) {
-        int index = getIndexOf(gericht);
-        if(index != -1) {
-            gerichte.remove(index);
-            anzStimmen.remove(index);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean abstimmen(Hauptspeise gericht) {
-        int index = getIndexOf(gericht);
-        if(index != -1) {
-            anzStimmen.set(index, anzStimmen.get(index)+1);
-            return true;
-        }
-        return false;
-    }
-
-    public int getAnzStimmenOf(Hauptspeise gericht) {
-        int index = getIndexOf(gericht);
-        return index != -1 ? anzStimmen.get(index) : 0;
-    }
-
-    public int getAnzStimmenGesamt() {
-        int summe = 0;
-        for(int i=0; i < gerichte.size(); i++) {
-            summe += getAnzStimmenOf(gerichte.get(i));
-        }
-        return summe;
-    }
-
-    public Hauptspeise[] getGewinner() {
-        if(!istAktiv() && gerichte.size() > 0) {
-            int gewinnerIndex = 0;
-            LinkedList<Hauptspeise> gewinner = new LinkedList<>();
-            for(int i=0; i < anzStimmen.size(); i++) {
-                if(anzStimmen.get(i) > anzStimmen.get(gewinnerIndex)) {
-                    gewinnerIndex = i;
-                    gewinner = new LinkedList<>();
-                    gewinner.add(gerichte.get(i));
-                } else if(anzStimmen.get(i) == anzStimmen.get(gewinnerIndex)) {
-                    gewinner.add(gerichte.get(i));
-                }
-            }
-            Hauptspeise[] gewinnerArray = new Hauptspeise[gewinner.size()];
-            for(int i=0; i < gewinner.size(); i++) {
-                gewinnerArray[i] = gewinner.get(i);
-            }
-            return gewinnerArray;
-        }
-        return new Hauptspeise[0];
-    }
-
 }

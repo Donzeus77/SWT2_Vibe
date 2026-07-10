@@ -1,10 +1,9 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
-import { api, type AuthUser } from "../lib/api";
+import { createContext, useContext, useState, type ReactNode } from "react";
+import { type AuthUser } from "../lib/api";
 
 interface AuthContextType {
   user: AuthUser | null;
-  token: string | null;
-  login: (token: string, user: AuthUser) => void;
+  login: (user: AuthUser) => void;
   logout: () => void;
   isLoggedIn: boolean;
 }
@@ -12,31 +11,23 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem("authToken"));
+  const [user, setUser] = useState<AuthUser | null>(() => {
+    const saved = localStorage.getItem("profil");
+    return saved ? JSON.parse(saved) as AuthUser : null;
+  });
 
-  useEffect(() => {
-    if (token) {
-      api.auth.me()
-        .then(u => setUser(u))
-        .catch(() => { localStorage.removeItem("authToken"); setToken(null); });
-    }
-  }, [token]);
-
-  const login = (newToken: string, newUser: AuthUser) => {
-    localStorage.setItem("authToken", newToken);
-    setToken(newToken);
+  const login = (newUser: AuthUser) => {
+    localStorage.setItem("profil", JSON.stringify(newUser));
     setUser(newUser);
   };
 
   const logout = () => {
-    localStorage.removeItem("authToken");
-    setToken(null);
+    localStorage.removeItem("profil");
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isLoggedIn: !!user }}>
+    <AuthContext.Provider value={{ user, login, logout, isLoggedIn: !!user }}>
       {children}
     </AuthContext.Provider>
   );

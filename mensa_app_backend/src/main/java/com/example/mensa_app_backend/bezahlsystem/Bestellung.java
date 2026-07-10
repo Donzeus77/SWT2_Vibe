@@ -1,67 +1,29 @@
 package com.example.mensa_app_backend.bezahlsystem;
 
+import com.example.mensa_app_backend.profil.Profil;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 
+@Entity
 public class Bestellung {
-    private static int anzahlBestellungen = 0;
-    private long bestellnr;
-    private LocalDateTime bestelldatum;
-    private LocalDateTime abholdatum;
-    private boolean bezahlt = false;
-    private boolean abgeholt = false;
-    private boolean storniert = false;
-    private LinkedList<Warenkorb_Item> artikel;
-
-    public Bestellung(Warenkorb warenkorb, LocalDateTime abholdatum) {
-        bestellnr = ++anzahlBestellungen;
-        artikel = warenkorb.getArtikel();
-        this.abholdatum = abholdatum;
-        bestelldatum = LocalDateTime.now();
-    }
-
-    public long getBestellnr() {
-        return bestellnr;
-    }
-
-    public String getBestelldatum() {
-        return displayDate(bestelldatum) + displayTime(bestelldatum);
-    }
-
-    public String getAbholdatum() {
-        return displayDate(abholdatum) + displayTime(abholdatum);
-    }
-
-    private String displayDate(LocalDateTime date) {
-        return date.getDayOfMonth() + "." + date.getMonthValue() + "." + date.getYear(); 
-    }
-
-    private String displayTime(LocalDateTime time) {
-        return time.getHour() + ":" + time.getMinute();
-    }
-
-    public boolean istBezahlt() {
-        return bezahlt;
-    }
-
-    public boolean istAbgeholt() {
-        return abgeholt;
-    }
-
-    public boolean istStorniert() {
-        return storniert;
-    }
-
-    public void bezahlen() {
-        bezahlt = true;
-    }
-
-    public void abholen() {
-        abgeholt = true;
-    }
-
-    public void stornieren() {
-        storniert = true;
-    }
-
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long bestellnr;
+    private LocalDateTime bestelldatum = LocalDateTime.now();
+    private String abholdatum;
+    private String status = "OFFEN";
+    private String code;
+    @ManyToOne private Profil profil;
+    @OneToMany(mappedBy = "bestellung", cascade = CascadeType.ALL, orphanRemoval = true) private List<Warenkorb_Item> artikel = new ArrayList<>();
+    protected Bestellung() {}
+    public Bestellung(Profil profil, Warenkorb warenkorb, String abholdatum, String code) { this.profil = profil; this.abholdatum = abholdatum; this.code = code; for (Warenkorb_Item item : warenkorb.getArtikel()) artikel.add(new Warenkorb_Item(this, item)); }
+    public Long getBestellnr() { return bestellnr; } public String getAbholdatum() { return abholdatum; } public String getStatus() { return status; } public String getCode() { return code; } public List<Warenkorb_Item> getArtikel() { return artikel; }
+    public double getGesamtpreis() { return artikel.stream().mapToDouble(Warenkorb_Item::berechnePreis).sum(); }
+    public void setStatus(String status) { this.status = status; } public void setProfil(Profil profil) { this.profil = profil; }
 }

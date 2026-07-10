@@ -1,18 +1,10 @@
 const BASE = "/api";
 
-function getToken(): string | null {
-  return localStorage.getItem("authToken");
-}
-
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...((options.headers as Record<string, string>) || {}),
   };
-  const token = getToken();
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
   const res = await fetch(`${BASE}${path}`, { ...options, headers });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: "Serverfehler" }));
@@ -63,16 +55,15 @@ export interface AuthUser {
 export const api = {
   auth: {
     login: (email: string, password: string) =>
-      request<{ token: string; user: AuthUser }>("/auth/login", {
+      request<AuthUser>("/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password }),
       }),
     register: (email: string, password: string, vorname: string, nachname: string) =>
-      request<{ token: string; user: AuthUser }>("/auth/register", {
+      request<AuthUser>("/auth/register", {
         method: "POST",
         body: JSON.stringify({ email, password, vorname, nachname }),
       }),
-    me: () => request<AuthUser>("/auth/me"),
   },
   menu: {
     all: () => request<MenuItem[]>("/menu"),
@@ -82,21 +73,21 @@ export const api = {
     all: () => request<Mensa[]>("/mensen"),
   },
   orders: {
-    all: () => request<Order[]>("/orders"),
-    create: (data: { items: { gerichtId: number; anzahl: number }[]; pickupTime: string }) =>
+    all: (email: string) => request<Order[]>(`/orders?email=${encodeURIComponent(email)}`),
+    create: (data: { email: string; items: { gerichtId: number; name: string; anzahl: number; preis: number }[]; pickupTime: string }) =>
       request<Order>("/orders", { method: "POST", body: JSON.stringify(data) }),
     updateStatus: (id: number, status: string) =>
       request<Order>(`/orders/${id}`, { method: "PATCH", body: JSON.stringify({ status }) }),
   },
   votes: {
     counts: () => request<Record<number, number>>("/votes"),
-    myVotes: () => request<number[]>("/votes/my"),
-    cast: (gerichtId: number) =>
-      request<void>(`/votes/${gerichtId}`, { method: "POST" }),
+    myVotes: (email: string) => request<number[]>(`/votes/my?email=${encodeURIComponent(email)}`),
+    cast: (gerichtId: number, email: string) =>
+      request<void>(`/votes/${gerichtId}?email=${encodeURIComponent(email)}`, { method: "POST" }),
   },
   profil: {
-    preferences: () => request<{ dietary: string[]; allergens: string[] }>("/profil/preferences"),
-    updatePreferences: (data: { dietary: string[]; allergens: string[] }) =>
-      request<void>("/profil/preferences", { method: "PUT", body: JSON.stringify(data) }),
+    preferences: (email: string) => request<{ dietary: string[]; allergens: string[] }>(`/profil/preferences?email=${encodeURIComponent(email)}`),
+    updatePreferences: (email: string, data: { dietary: string[]; allergens: string[] }) =>
+      request<void>(`/profil/preferences?email=${encodeURIComponent(email)}`, { method: "PUT", body: JSON.stringify(data) }),
   },
 };

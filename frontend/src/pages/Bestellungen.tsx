@@ -21,7 +21,7 @@ export default function Bestellungen() {
 
   const loadOrders = () => {
     if (isLoggedIn) {
-      api.orders.all().then(setOrders).catch(() => {});
+      api.orders.all(user!.email).then(setOrders).catch(() => {});
     }
   };
 
@@ -43,7 +43,7 @@ export default function Bestellungen() {
   const handleCheckout = async () => {
     setStep("processing");
     try {
-      const order = await api.orders.create({
+      const order = await api.orders.create({ email: user!.email,
         items: items.map(i => ({ gerichtId: i.item.id, name: i.item.name, anzahl: i.anzahl, preis: i.item.preisStudent })),
         pickupTime,
       });

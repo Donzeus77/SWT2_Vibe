@@ -16,7 +16,7 @@ export default function Abstimmung() {
       .then(([m, c]) => { setMenu(m); setCounts(c); setLoading(false); })
       .catch(() => setLoading(false));
     if (isLoggedIn) {
-      api.votes.myVotes().then(setMyVotes).catch(() => {});
+      api.votes.myVotes(user!.email).then(setMyVotes).catch(() => {});
     }
   };
 
@@ -25,7 +25,7 @@ export default function Abstimmung() {
   const handleVote = async (gerichtId: number) => {
     if (!isLoggedIn || myVotes.includes(gerichtId)) return;
     try {
-      await api.votes.cast(gerichtId);
+      await api.votes.cast(gerichtId, user!.email);
       setMyVotes([...myVotes, gerichtId]);
       loadData();
     } catch (e) {
