@@ -5,7 +5,7 @@ import { ThumbsUp, Trophy, Lock } from "lucide-react";
 import { cn } from "../lib/utils";
 
 export default function Abstimmung() {
-  const { isLoggedIn } = useAuth();
+  const { user, isLoggedIn } = useAuth();
   const [menu, setMenu] = useState<MenuItem[]>([]);
   const [counts, setCounts] = useState<Record<number, number>>({});
   const [myVotes, setMyVotes] = useState<number[]>([]);
