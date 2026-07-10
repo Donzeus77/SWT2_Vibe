@@ -14,15 +14,15 @@ Die verbleibende Arbeit ist auf **sieben gleichwertige Lieferpakete** verteilt. 
 
 Jedes Paket ist für eine Person bzw. ein Zweierteam gedacht. Die Pakete sind vergleichbar groß: jedes enthält Implementierung, Test und Abnahme. Paket A und B starten mit bereits vorhandener SWT2-Vorarbeit; ihre restlichen Aufgaben gleichen diesen Vorsprung aus.
 
-| Paket | Zuteilung / Schwerpunkt | Vorarbeit im SWT2-Stand | Ergebnis des Pakets | Abhängigkeit |
-|---|---|---|---|---|
-| A | Infrastruktur und Projektbasis | Root-POM, Mosquitto-Konfiguration und CI vorhanden | Docker-Compose, funktionierendes Startskript, aktuelle README und Frontend-Check in CI | keine |
-| B | Simulator: Speiseplan und Mensen | Gerichtsdomain, Controller, Repositories und Seed vorhanden | geprüfte JPA-Domain, saubere Seed-Daten, verlässliche REST-Endpunkte und Tests | PostgreSQL aus A für Abnahme |
-| C | Simulator: MQTT und Eingangsdaten | Topic-Einstellungen vorhanden | Publisher für Speiseplan/Mensen sowie persistierter Empfang von Bestellungen und Stimmen | A, B |
-| D | Profile und Präferenzen | SWT2-Prototyp `Profil` vorhanden | persistentes Profil, Login/Registrierung ohne JWT und gespeicherte Präferenzen | A |
-| E | App-Backend: Speiseplan- und Mensen-Caches | erste Menü- und Adapterklassen vorhanden | MQTT-Subscriber, Caches und REST-Leseendpunkte für Menü und Mensen | A, C |
-| F | App-Backend: Bestellung und Abstimmung | SWT2-Prototypen Warenkorb, Bestellung und Abstimmung vorhanden | persistente Bestellung/Votes, Dummy-Entfernung, REST und MQTT-Publish | C, D |
-| G | Frontend und Gesamtabnahme | kein Frontend vorhanden | React/Vite-Frontend mit Profil, Warenkorb, Checkout, Standorten und Voting | D, E, F |
+| Paket | Zuteilung / Schwerpunkt | Bearbeiter/in | Vorarbeit im SWT2-Stand | Ergebnis des Pakets | Abhängigkeit |
+|---|---|---|---|---|---|
+| A | Infrastruktur und Projektbasis | _eintragen_ | Root-POM, Mosquitto-Konfiguration und CI vorhanden | Docker-Compose, funktionierendes Startskript, aktuelle README und Frontend-Check in CI | keine |
+| B | Simulator: Speiseplan und Mensen | _eintragen_ | Gerichtsdomain, Controller, Repositories und Seed vorhanden | geprüfte JPA-Domain, saubere Seed-Daten, verlässliche REST-Endpunkte und Tests | PostgreSQL aus A für Abnahme |
+| C | Simulator: MQTT und Eingangsdaten | _eintragen_ | Topic-Einstellungen vorhanden | Publisher für Speiseplan/Mensen sowie persistierter Empfang von Bestellungen und Stimmen | A, B |
+| D | Profile und Präferenzen | _eintragen_ | SWT2-Prototyp `Profil` vorhanden | persistentes Profil, Login/Registrierung ohne JWT und gespeicherte Präferenzen | A |
+| E | App-Backend: Speiseplan- und Mensen-Caches | _eintragen_ | erste Menü- und Adapterklassen vorhanden | MQTT-Subscriber, Caches und REST-Leseendpunkte für Menü und Mensen | A, C |
+| F | App-Backend: Bestellung und Abstimmung | _eintragen_ | SWT2-Prototypen Warenkorb, Bestellung und Abstimmung vorhanden | persistente Bestellung/Votes, Dummy-Entfernung, REST und MQTT-Publish | C, D |
+| G | Frontend und Gesamtabnahme | _eintragen_ | kein Frontend vorhanden | React/Vite-Frontend mit Profil, Warenkorb, Checkout, Standorten und Voting | D, E, F |
 
 ### Empfohlene Reihenfolge
 
@@ -33,6 +33,97 @@ A ──┬── B ── C ── E ──┐
 ```
 
 Parallel möglich sind zunächst A, B und D. C beginnt nach B, E nach C, F nach D und C. G kann als Frontend-Grundlage starten, wird aber erst nach D, E und F vollständig integriert.
+
+---
+
+## Dateiübersicht je Paket
+
+Diese Liste deckt den vollständigen Quellunterschied von `SWT2/` zu `SWT2_Vibe/` ab. Sie zeigt deshalb nicht nur neue Dateien, sondern auch alle gezielt zu ändernden und zu entfernenden Ausgangsdateien.
+
+### Paket A – Infrastruktur und Bereinigung
+
+| Aktion | Dateien |
+|---|---|
+| Neu | `docker-compose.yml`, `IMPLEMENTIERUNG.md` |
+| Ändern | `README.md`, `start-services.ps1`, optional `.github/workflows/pre-merge.yaml` für den Frontend-Build |
+| Entfernen | `Authentizierung.java`, `Gericht.java`, `MenuGetter.java`, `Profil.java`, `Voting.java`, `PAKET_B_ZEILEN_ERKLAERT.md` |
+
+### Paket B – Simulator-Domain, Seed und REST
+
+| Aktion | Dateien |
+|---|---|
+| Ändern | `studentenwerk_simulator/src/main/java/.../gericht/Gericht.java`, `Beilage.java`, `Hauptspeise.java`, `GerichtRepository.java`, `BeilageRepository.java`, `HauptspeiseRepository.java` |
+| Ändern | `.../gericht/factory/BeilageFactory.java`, `HauptgerichtFactory.java`, `.../mensa/Mensa.java`, `MensaRepository.java` |
+| Ändern | `.../config/SeedData.java`, `.../src/main/resources/application.properties` |
+| Entfernen | `.../meal/Meal.java`, `MealController.java`, `MealService.java` |
+| Prüfen/Testen | `.../controller/GerichtController.java`, `MensaController.java`, `.../StudentenwerkSimulatorApplicationTest.java` |
+
+### Paket C – Simulator-MQTT und Empfang
+
+| Aktion | Dateien |
+|---|---|
+| Neu | `studentenwerk_simulator/src/main/java/.../config/MqttConfig.java`, `MqttPublisher.java` |
+| Neu | `.../orderreceiver/OrderMqttHandler.java`, `ReceivedOrderItem.java`, `ReceivedOrderItemRequest.java`, `ReceivedOrderRepository.java` |
+| Neu | `.../voting/VoteMqttHandler.java`, `VoteTotal.java`, `VoteTotalRepository.java` |
+| Ändern | `.../orderreceiver/ReceivedOrder.java`, `ReceivedOrderRequest.java`, `ReceivedOrderService.java` |
+| Ändern | `studentenwerk_simulator/src/main/resources/application.properties` (Topic- und Broker-Konfiguration) |
+
+### Paket D – Profil, Anmeldung und Präferenzen
+
+| Aktion | Dateien |
+|---|---|
+| Neu | `mensa_app_backend/src/main/java/.../profil/ProfilRepository.java`, `AuthController.java` |
+| Neu | `.../preference/Preference.java`, `PreferenceRepository.java`, `PreferenceController.java` |
+| Neu/Verschieben | `mensa_app_backend/src/test/java/.../profil/ProfilTest.java` |
+| Ändern | `.../profil/Profil.java`, `mensa_app_backend/pom.xml`, `mensa_app_backend/src/main/resources/application.properties` |
+| Entfernen | `mensa_app_backend/src/main/java/.../profil/ProfilTest.java` aus `src/main` |
+
+### Paket E – Menü- und Mensen-Caches im App-Backend
+
+| Aktion | Dateien |
+|---|---|
+| Neu | `mensa_app_backend/src/main/java/.../config/MqttConfig.java` |
+| Neu | `.../menu/MenuCache.java`, `MenuMqttHandler.java` |
+| Neu | `.../mensa/MensaCache.java`, `MensaController.java` |
+| Ändern | `.../menu/MenuService.java`, `MenuController.java` |
+| Prüfen/ggf. entfernen | `.../adapter/MensaAPI.java`, `MensaAdapter.java` |
+
+### Paket F – Warenkorb, Bestellung und Abstimmung
+
+| Aktion | Dateien |
+|---|---|
+| Neu | `mensa_app_backend/src/main/java/.../bezahlsystem/BestellungController.java`, `BestellungRepository.java` |
+| Neu | `.../profil/AbstimmungController.java`, `AbstimmungRepository.java` |
+| Ändern | `.../bezahlsystem/Warenkorb.java`, `Warenkorb_Item.java`, `Bestellung.java` |
+| Ändern | `.../profil/Abstimmung.java` |
+| Entfernen | `.../bezahlsystem/Gericht.java`, `.../profil/Hauptspeise.java` |
+| Entfernen | gesamtes bisheriges Paket `.../order/`: `Order.java`, `OrderController.java`, `OrderRequest.java`, `OrderService.java` |
+
+### Paket G – Frontend
+
+| Aktion | Dateien |
+|---|---|
+| Neu | `frontend/package.json`, `package-lock.json`, `index.html`, `vite.config.ts`, `.gitignore` |
+| Neu | `frontend/src/main.tsx`, `App.tsx`, `styles/index.css`, `lib/api.ts`, `lib/utils.ts` |
+| Neu | `frontend/src/context/AuthContext.tsx`, `CartContext.tsx` |
+| Neu | `frontend/src/components/Navigation.tsx`, `MenuCard.tsx`, `MenuFilters.tsx` sowie `components/ui/*` |
+| Neu | `frontend/src/pages/Home.tsx`, `Standorte.tsx`, `Abstimmung.tsx`, `Bestellungen.tsx`, `Profil.tsx` |
+
+### Vollständigkeitscheck
+
+Folgende fachliche Änderungen sind damit jeweils genau einem Paket zugeordnet:
+
+| Änderung vom SWT2-Stand zum Zielstand | Verantwortliches Paket |
+|---|---|
+| Infrastruktur, Root-Dateien, CI, Startbarkeit und Dokumentation | A |
+| JPA-Gerichte, Mensen, Seed, REST und Entfernen des alten `meal`-Prototyps | B |
+| alle Simulator-MQTT-Publisher/Subscriber und Empfangs-Entities | C |
+| persistente Profile, Login ohne JWT und Präferenzen | D |
+| Menü-/Mensa-MQTT-Cache und zugehörige App-REST-Endpunkte | E |
+| Dummy-Entfernung, Warenkorb, Bestellung, Abstimmung und MQTT-Ausgang | F |
+| jede neue React/Vite-Datei und der komplette Nutzerablauf im Browser | G |
+
+Es bleiben damit keine neuen, geänderten oder aus dem SWT2-Ausgangsstand entfernten Produktionsdateien ohne Paketzuordnung.
 
 ---
 
